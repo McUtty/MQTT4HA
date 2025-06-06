@@ -58,3 +58,66 @@ Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 - Callbacks mit ha.on...Command(...) registrieren (optional, z.B. für Switch)
 - ha.loop() im Loop aufrufen
 - ha.send... für aktuelle Werte/Zustände verwenden
+
+| **Funktion**                | **Beschreibung**                                         |
+| --------------------------- | -------------------------------------------------------- |
+| `begin()`                   | Startet die MQTT-Verbindung (nach WLAN-Verbindung)       |
+| `setDebug(bool)`            | Debug-Ausgaben an/aus schalten                           |
+| `loop()`                    | Hält die MQTT-Verbindung aktiv und verarbeitet Befehle   |
+|                             |                                                          |
+| `announceSensor(...)`       | Meldet einen Sensor an Home Assistant an                 |
+| `sendSensor(...)`           | Sendet einen Sensorwert                                  |
+|                             |                                                          |
+| `announceBinarySensor(...)` | Meldet einen Binary Sensor (z.B. Tür auf/zu) an          |
+| `sendBinarySensor(...)`     | Sendet den Status des Binary Sensors (ON/OFF)            |
+|                             |                                                          |
+| `announceSwitch(...)`       | Meldet einen Switch (Schalter) an                        |
+| `sendSwitchState(...)`      | Sendet den aktuellen Zustand des Schalters (ON/OFF)      |
+| `onSwitchCommand(...)`      | Callback für empfangene Schaltbefehle aus Home Assistant |
+|                             |                                                          |
+| `announceLight(...)`        | Meldet ein Licht (auch RGB/Dimmbar) an                   |
+| `sendLightState(...)`       | Sendet Licht-Zustand, Helligkeit und Farbe               |
+| `onLightCommand(...)`       | Callback für Steuerbefehle aus Home Assistant            |
+|                             |                                                          |
+| `announceNumber(...)`       | Meldet eine Zahl-Eingabe an (z.B. Sollwert)              |
+| `sendNumberState(...)`      | Sendet aktuellen Zahlenwert                              |
+| `onNumberCommand(...)`      | Callback für Werteingaben aus Home Assistant             |
+|                             |                                                          |
+| `announceButton(...)`       | Meldet einen Button (Taster) an                          |
+| `onButtonPress(...)`        | Callback für Button-Events aus Home Assistant            |
+|                             |                                                          |
+| `announceSelect(...)`       | Meldet ein Auswahlfeld (Dropdown) an                     |
+| `sendSelectState(...)`      | Sendet den aktuellen Auswahlwert                         |
+| `onSelectCommand(...)`      | Callback für Auswahlbefehle aus Home Assistant           |
+|                             |                                                          |
+| `announceCover(...)`        | Meldet ein Cover (Rollladen/Garagentor) an               |
+| `sendCoverState(...)`       | Sendet die aktuelle Position/zustand des Covers          |
+| `onCoverCommand(...)`       | Callback für Steuerbefehle aus Home Assistant            |
+
+| **Befehl**                                                | **Beschreibung**                                              | **Beispiel**                                      |
+| --------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------- |
+| MQTT4HA(const char\* name, const char\* broker, \[debug]) | Konstruktor: Objekt anlegen mit Gerätename, Broker, Debug     | MQTT4HA ha("esp32\_demo", "192.168.1.10", true);  |
+| begin(\[user], \[pass], \[port])                          | Startet MQTT-Client (nachdem WLAN verbunden wurde!)           | ha.begin("mqttuser", "mqttpass", 1883);           |
+| setDebug(bool)                                            | Debug-Ausgaben an/aus schalten                                | ha.setDebug(true);                                |
+| loop()                                                    | Muss regelmäßig in loop() laufen, hält MQTT-Verbindung        | ha.loop();                                        |
+| announceSensor(name, einheit, \[device\_class])           | Sensor für Home Assistant Discovery anmelden                  | ha.announceSensor("temp", "°C", "temperature");   |
+| sendSensor(name, value)                                   | Sensorwert veröffentlichen                                    | ha.sendSensor("temp", 22.5);                      |
+| announceBinarySensor(name, \[device\_class])              | Binary Sensor (z.B. Türkontakt) anmelden                      | ha.announceBinarySensor("door", "door");          |
+| sendBinarySensor(name, state)                             | Binary Sensor-Zustand (ON/OFF) senden                         | ha.sendBinarySensor("door", true);                |
+| announceSwitch(name, \[icon])                             | Schalter (Switch) per Discovery anmelden                      | ha.announceSwitch("led", "mdi\:lightbulb");       |
+| sendSwitchState(name, on)                                 | Schalter-Zustand an HA melden (ON/OFF)                        | ha.sendSwitchState("led", true);                  |
+| onSwitchCommand(name, callback)                           | Callback für Schalter-Befehle aus Home Assistant registrieren | ha.onSwitchCommand("led", ledCallback);           |
+| announceLight(name, \[dimmbar], \[rgb])                   | Licht (auch RGB/Dimmbar) anmelden                             | ha.announceLight("lampe", true, true);            |
+| sendLightState(name, on, brightness, r, g, b)             | Licht steuern (Status, Helligkeit, Farbe)                     | ha.sendLightState("lampe", true, 128, 255, 0, 0); |
+| onLightCommand(name, callback)                            | Callback für Licht-Befehle aus Home Assistant                 | ha.onLightCommand("lampe", lightCallback);        |
+| announceNumber(name, min, max, step, \[einheit])          | Zahleneingabe (Number) anmelden                               | ha.announceNumber("solltemp", 10, 40, 0.5, "°C"); |
+| sendNumberState(name, value)                              | Zahlenwert an HA senden                                       | ha.sendNumberState("solltemp", 22.0);             |
+| onNumberCommand(name, callback)                           | Callback für Zahleneingaben                                   | ha.onNumberCommand("solltemp", numberCallback);   |
+| announceButton(name, \[icon])                             | Button (Taster) anmelden                                      | ha.announceButton("restart", "mdi\:restart");     |
+| onButtonPress(name, callback)                             | Callback für Button-Events                                    | ha.onButtonPress("restart", restartCallback);     |
+| announceSelect(name, options)                             | Auswahlfeld (Dropdown) anmelden                               | ha.announceSelect("mode", {"Auto", "Eco"});       |
+| sendSelectState(name, value)                              | Auswahlwert an HA senden                                      | ha.sendSelectState("mode", "Auto");               |
+| onSelectCommand(name, callback)                           | Callback für Auswahlbefehle                                   | ha.onSelectCommand("mode", modeCallback);         |
+| announceCover(name)                                       | Rollladen/Tor (Cover) anmelden                                | ha.announceCover("garage");                       |
+| sendCoverState(name, position, \[state])                  | Cover-Status an HA senden                                     | ha.sendCoverState("garage", "open");              |
+| onCoverCommand(name, callback)                            | Callback für Cover-Befehle                                    | ha.onCoverCommand("garage", coverCallback);       |
