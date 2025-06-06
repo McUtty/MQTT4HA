@@ -59,6 +59,8 @@ Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 - ha.loop() im Loop aufrufen
 - ha.send... für aktuelle Werte/Zustände verwenden
 
+
+
 | **Funktion**                | **Beschreibung**                                         |
 | --------------------------- | -------------------------------------------------------- |
 | `begin()`                   | Startet die MQTT-Verbindung (nach WLAN-Verbindung)       |
@@ -94,6 +96,8 @@ Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 | `sendCoverState(...)`       | Sendet die aktuelle Position/zustand des Covers          |
 | `onCoverCommand(...)`       | Callback für Steuerbefehle aus Home Assistant            |
 
+
+
 | **Befehl**                                                | **Beschreibung**                                              | **Beispiel**                                      |
 | --------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------- |
 | MQTT4HA(const char\* name, const char\* broker, \[debug]) | Konstruktor: Objekt anlegen mit Gerätename, Broker, Debug     | MQTT4HA ha("esp32\_demo", "192.168.1.10", true);  |
@@ -121,3 +125,42 @@ Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 | announceCover(name)                                       | Rollladen/Tor (Cover) anmelden                                | ha.announceCover("garage");                       |
 | sendCoverState(name, position, \[state])                  | Cover-Status an HA senden                                     | ha.sendCoverState("garage", "open");              |
 | onCoverCommand(name, callback)                            | Callback für Cover-Befehle                                    | ha.onCoverCommand("garage", coverCallback);       |
+
+## Mit und Ohne Geräteanmeldung bei Home Assistant
+| **Anwendung**                         | **Schritt**      | **Code-Snippet**                                                             | **Kommentar**                 |
+| ------------------------------------- | ---------------- | ---------------------------------------------------------------------------- | ----------------------------- |
+| **Gerät bei Home Assistant anmelden** | Objekt anlegen   | `MQTT4HA ha("esp32_demo", "192.168.1.10");`                                  | Name + Broker-IP              |
+|                                       | WLAN verbinden   | `WiFi.begin("SSID", "PASS"); while(WiFi.status()!=WL_CONNECTED) delay(100);` | Wie gewohnt im Sketch         |
+|                                       | MQTT starten     | `ha.begin("user", "pass");`                                                  | Port optional                 |
+|                                       | Entität anmelden | `ha.announceSensor("temp", "°C", "temperature");`                            | Automatisch in HA sichtbar    |
+|                                       | Wert senden      | `ha.sendSensor("temp", 22.5);`                                               | Wert an HA schicken           |
+|                                       | loop() aufrufen  | `ha.loop();`                                                                 | Verbindung & Kommandos halten |
+
+| **Nur MQTT-Nachricht (ohne Home Assistant)** | **Schritt**                                      | **Code-Snippet**                           | **Kommentar** |
+| -------------------------------------------- | ------------------------------------------------ | ------------------------------------------ | ------------- |
+| Objekt anlegen                               | `MQTT4HA ha("demo", "192.168.1.10");`            | Name und Broker                            |               |
+| WLAN verbinden                               | `WiFi.begin("SSID", "PASS"); ...`                |                                            |               |
+| MQTT starten                                 | `ha.begin("user", "pass");`                      |                                            |               |
+| Beliebige Nachricht senden                   | `ha.client.publish("mein/topic", "Dein Text!");` | Direkt mit client-Objekt, beliebiges Topic |               |
+| loop() aufrufen                              | `ha.loop();`                                     | Verbindung halten                          |               |
+
+## Beispiel: Home Assistant Discovery
+```cpp
+MQTT4HA ha("esp32_demo", "192.168.1.10");
+WiFi.begin("SSID", "PASS");
+while (WiFi.status() != WL_CONNECTED) delay(500);
+ha.begin("user", "pass");
+ha.announceSensor("temp", "°C", "temperature");
+ha.sendSensor("temp", 22.5);
+ha.loop();
+```
+
+## Beispiel: Nur MQTT-Nachricht (ohne HA)
+```cpp
+MQTT4HA ha("demo", "192.168.1.10");
+WiFi.begin("SSID", "PASS");
+while (WiFi.status() != WL_CONNECTED) delay(500);
+ha.begin("user", "pass");
+ha.client.publish("mein/thema", "Nur MQTT – kein Home Assistant");
+ha.loop();
+```
