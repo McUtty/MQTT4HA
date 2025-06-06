@@ -9,41 +9,41 @@ Lib zum einbinden von Geräten via MQTT an Home Assistant mit nur 3 Zeilen Code
 
 ## Wie nutzt du die Bibliothek?
 
-### Im Sketch einbinden:
+##### Im Sketch einbinden:
 Bibliothek einbinden und ein MQTT4HA-Objekt mit Gerätenamen und Broker-Adresse anlegen.
-### WLAN verbinden:
+##### WLAN verbinden:
 WLAN wird wie gewohnt im Sketch hergestellt (die Bibliothek übernimmt das nicht).
-### MQTT starten:
+##### MQTT starten:
 Mit den Zugangsdaten den MQTT-Client starten (über die begin-Funktion).
-### Geräte/Entitäten anmelden:
+##### Geräte/Entitäten anmelden:
 Für jede Entität (Sensor, Switch, etc.) wird einmal eine „announce...“-Funktion aufgerufen.
 → Die Bibliothek merkt sich das und kümmert sich selbstständig um das Senden der nötigen Home Assistant-Konfiguration.
-### Werte senden / empfangen:
+##### Werte senden / empfangen:
 Sensoren und Zustände sendest du mit den passenden „send...“-Funktionen.
 Schalt- oder Steuerbefehle aus Home Assistant werden über Callbacks (onSwitchCommand, onButtonPress usw.) abgefangen.
-### Im Loop laufen lassen:
+##### Im Loop laufen lassen:
 Mit einem einzigen Funktionsaufruf im Loop bleibt die MQTT-Verbindung aktiv und alle Nachrichten werden verarbeitet.
-### Debug-Modus:
+##### Debug-Modus:
 Über einen Schalter kannst du alle Debug-Ausgaben jederzeit an- oder ausschalten.
 
 ## Welche Hauptfunktionen gibt es?
 
-### announce...:
+##### announce...:
 Meldet eine neue Entität (Sensor, Switch, Light, Number, Button, Select, Cover, etc.) bei Home Assistant an.
-### send...:
+##### send...:
 Sendet aktuelle Werte oder Zustände einer Entität (Sensorwert, Switch-Zustand, Lichtfarbe, usw.) an Home Assistant.
-### on...Command/Press:
+##### on...Command/Press:
 Verknüpft einen Callback (Funktion), die ausgeführt wird, wenn Home Assistant einen Befehl (z.B. Schalten, Auswahl, Button-Press) sendet.
-### setDebug:
+##### setDebug:
 Schaltet alle Debug-Ausgaben an oder aus.
-### begin:
+##### begin:
 Startet die MQTT-Verbindung (nachdem WLAN steht).
-### loop:
+##### loop:
 Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 
 ## Was passiert im Hintergrund?
 
-### Alle „announce...“-Aufrufe werden gespeichert:
+##### Alle „announce...“-Aufrufe werden gespeichert:
 - Die Bibliothek merkt sich jede angemeldete Entität.
 - Discovery wird immer dann gesendet, wenn die MQTT-Verbindung besteht – auch nach Reconnect.
 - Du musst nie auf das richtige Timing achten:
@@ -51,7 +51,7 @@ Hält die MQTT-Verbindung und verarbeitet eingehende Befehle.
 - Bei Verbindungsabbrüchen werden alle Entities automatisch wieder im Broker/Home Assistant eingetragen.
 - Wie ist der typische Ablauf für eigene Projekte?
 
-### MQTT4HA-Objekt anlegen (Gerätename, Broker-Adresse, Debug-Flag)
+##### MQTT4HA-Objekt anlegen (Gerätename, Broker-Adresse, Debug-Flag)
 - WLAN verbinden
 - ha.begin(...) aufrufen
 - ha.announce... für alle gewünschten Entities aufrufen
